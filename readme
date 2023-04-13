@@ -3,12 +3,12 @@ Assignment 4 readme File
 ------------------------------------------------------------------------
 Student 1: What is your name?
 
-
+Isabella Sibaja
 
 ------------------------------------------------------------------------
 Student 2: What is your name?
 
-
+Okezie Eze
 
 ------------------------------------------------------------------------
 Student 1: What authorized sources of information did you use to
@@ -17,7 +17,20 @@ information given in the "Policies" web page (also available on armlab
 in the file ~cos217/AuthorizedSourcesList ) to this section of the
 readme file, and edit it as appropriate.
 
+The course's lectures.
 
+The course's precepts.
+
+The course's website.
+
+Documents that are referenced directly by the course's website. 
+Such documents include the course's lecture slides and precept handouts.
+
+The course's current staff members outside of class time through office hours.
+
+The course's current staff members outside of class time through Ed.
+
+Current Intro Lab TAs through visits to the Intro COS Lab.
 
 ------------------------------------------------------------------------
 Student 2: What authorized sources of information did you use to
@@ -26,6 +39,20 @@ information given in the "Policies" web page (also available on armlab
 in the file ~cos217/AuthorizedSourcesList ) to this section of the
 readme file, and edit it as appropriate.
 
+The course's lectures.
+
+The course's precepts.
+
+The course's website.
+
+Documents that are referenced directly by the course's website. 
+Such documents include the course's lecture slides and precept handouts.
+
+The course's current staff members outside of class time through office hours.
+
+The course's current staff members outside of class time through Ed.
+
+Current Intro Lab TAs through visits to the Intro COS Lab.
 
 
 ------------------------------------------------------------------------
@@ -40,7 +67,7 @@ nature of the interaction, may additionally require the interaction
 being reported to the Committee on Discipline. Write "None" if you used
 no unauthorized sources of information.
 
-
+None
 
 ------------------------------------------------------------------------
 Student 2: What unauthorized sources of information did you use to
@@ -54,26 +81,28 @@ nature of the interaction, may additionally require the interaction
 being reported to the Committee on Discipline. Write "None" if you used
 no unauthorized sources of information.
 
-
+None
 
 ------------------------------------------------------------------------
 Student 1: What is your assessment of the assignment? Was it helpful?
 Was it fun?
 
-
+It was helpful
 
 ------------------------------------------------------------------------
 Student 2: What is your assessment of the assignment? Was it helpful?
 Was it fun?
 
-
+It was helpful
 
 ------------------------------------------------------------------------
 (optional) What information can you provide about your submission that
 will help your grader to grade it in the most favorable light? In
 particular, what bugs are in your submission?
 
-
+It's not really a bug, more of a clarification.
+Even though it's called dNode.c, it's 
+used for all nodes in the file tree (both files and directories). 
 
 ------------------------------------------------------------------------
 What warnings does splint generate for Part 2's checker, and what are
@@ -81,7 +110,7 @@ your disagreements with them? Copy the splint warnings here, and
 express your disagreement after each warning. If there are no
 warnings, then write "None."
 
-
+ None
 
 ------------------------------------------------------------------------
 What warnings does critTer generate on checkerDT.c, and what are your
@@ -89,7 +118,7 @@ disagreements with them? Copy the critTer warnings here, and express
 your disagreement after each warning. If there are no warnings, then
 write "None."
 
-
+None
 
 ------------------------------------------------------------------------
 What warnings does splint generate on your Part 3 code, and what are
@@ -97,7 +126,7 @@ your disagreements with them? Copy the splint warnings here, and
 express your disagreement after each warning. If there are no
 warnings, then write "None."
 
-
+None
 
 ------------------------------------------------------------------------
 What warnings does critTer generate on your Part 3 code, and what are
@@ -105,7 +134,33 @@ your disagreements with them? Copy the critTer warnings here, and
 express your disagreement after each warning. If there are no
 warnings, then write "None."
 
-
+      For ft.c: 
+      ft.c: line 290: medium priority:
+         Do you want to validate 'pvContents' through an assert? 
+         ANSWER: No, bc pvContents can be null
+      
+         ft.c: line 450: medium priority:
+         Do you want to validate 'pvNewContents' through an assert?
+         ANSWER: No, bc pvNewContents can be null
+      
+         ft.c: line 464: medium priority:
+         Do you want to validate 'pbIsFile' through an assert?
+         ANSWER: No, bc it's set, not called. 
+      
+         ft.c: line 464: medium priority:
+         Do you want to validate 'pulSize' through an assert?
+         ANSWER: No, bc it's set, not called. 
+       
+      
+      dNode.c:  dNode.c: line 78: medium priority:
+      Do you want to validate 'poNResult' through an assert?
+      ANSWER: No, bc it's purpose is to be assigned a value
+      dNode.c: line 78: medium priority:
+      Do you want to validate 'pvContents' through an assert?
+      ANSWER: No, bc it can be null
+      dNode.c: line 296: medium priority:
+      Do you want to validate 'pvNewContents' through an assert?
+      ANSWER: No, bc it can be null 
 
 ------------------------------------------------------------------------
 For each of the five faulty BDT implementations required by Step
@@ -117,21 +172,42 @@ the error manifests itself or is "noticed" by the client.
 
       Executable         Function with the underlying error
 ===============================================================
-         ./bdtBad1        
+         ./bdtBad1        BDT_insert 
 ---------------------------------------------------------------
-         ./bdtBad2        
+         ./bdtBad2        BDT_freeSubtree
 ---------------------------------------------------------------
-         ./bdtBad3        
+         ./bdtBad3        BDT_addChild
 ---------------------------------------------------------------
-         ./bdtBad4        
+         ./bdtBad4        BDT_strlenAccumulate
 ---------------------------------------------------------------
-         ./bdtBad5        
+         ./bdtBad5        BDT_findNode
 ===============================================================
 
 ------------------------------------------------------------------------
 What are your critiques of the given DT implementations, as
 specified in Step 2.5?
 
-
-
+One thing that could have been improved to help with debugging would 
+have been a helper function to access the directory tree state variables 
+(like a get ulcount function). I would also argue that using 
+calloc would be a better move than malloc when allotting memory.  
+Additionally, Node_toString feels like a function that was 
+ created with the intention of debugging, but with the way the assignment 
+ is structured, it’s never really needed. A critique of something I found 
+ immensely helpful was the breakdown in DT_findNode where the resulting 
+ enum state detailed the problem; this was very helpful in debugging as 
+ well as making the code easier to read. Honestly, the entire a4def.h file
+  was extraordinarily helpful in making the code more concise and readable
+for students. Finally, I feel as if for simplicity's sake, the Node_hasChild
+function could be removed, and instead a check for Node_getNumChildren >0 
+could be used as a replacement. 
+Rename CheckerDT_isValid -> CheckerDT_Hiearchy_isValid. 
+Rename int Path_dup -> int Path_copy
+On line 74 of dtGood.c: Path_comparePath(Node_getPath(oNRoot), oPPrefix) 
+is in the if statement not being compared to anything
+On line 296 of dtGood.c: no exclamation point
+Positives
+oPPath and oNFound freed when checks failed 
+Asserts make sure Node_T parameters are not null
+Descriptive enum states
 ------------------------------------------------------------------------
