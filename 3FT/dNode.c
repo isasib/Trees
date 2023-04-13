@@ -8,7 +8,6 @@
 #include <string.h>
 #include "dynarray.h"
 #include "dNode.h"
-#include "checkerDT.h"
 #include <stdio.h>
 
 /* A node in a FT */
@@ -27,8 +26,7 @@ struct node {
    size_t length; 
 
 };
-
-
+/*--------------------------------------------------------------------*/
 /*
   Links new child oNChild into oNParent's children array at index
   ulIndex. Returns SUCCESS if the new child was added successfully,
@@ -48,7 +46,7 @@ static int Node_addChild(Node_T oNParent, Node_T oNChild,
    else
       return MEMORY_ERROR;
 }
-
+/*--------------------------------------------------------------------*/
 /*
   Compares the string representation of oNfirst with a string
   pcSecond representing a node's path.
@@ -62,30 +60,17 @@ static int Node_compareString(const Node_T oNFirst,
 
    return Path_compareString(oNFirst->oPPath, pcSecond);
 }
-
-
-/*
-  Creates a new node with path oPPath and parent oNParent.  Returns an
-  int SUCCESS status and sets *poNResult to be the new node if
-  successful. Otherwise, sets *poNResult to NULL and returns status:
-  * MEMORY_ERROR if memory could not be allocated to complete request
-  * CONFLICTING_PATH if oNParent's path is not an ancestor of oPPath
-  * NO_SUCH_PATH if oPPath is of depth 0
-                 or oNParent's path is not oPPath's direct parent
-                 or oNParent is NULL but oPPath is not of depth 1
-  * ALREADY_IN_TREE if oNParent already has a child with this path
-*/
+/*--------------------------------------------------------------------*/
 int Node_new(Path_T oPPath, Node_T oNParent, Node_T *poNResult, 
 boolean fiOrDi, size_t ulLength, void *pvContents) {
    struct node *psNew;
    Path_T oPParentPath = NULL;
    Path_T oPNewPath = NULL;
    size_t ulParentDepth;
-   size_t ulIndex;
+   size_t ulIndex = 0; 
    int iStatus;
 
    assert(oPPath != NULL);
-   assert(oNParent == NULL || CheckerDT_Node_isValid(oNParent));
 
    /* allocate space for a new node */
    psNew = malloc(sizeof(struct node));
@@ -105,9 +90,8 @@ boolean fiOrDi, size_t ulLength, void *pvContents) {
    psNew->oPPath = oPNewPath;
 
    /* validate and set the new node's parent */
-   if(oNParent != NULL && !Node_getType(oNParent)){
+   if(oNParent != NULL){
       size_t ulSharedDepth;
-
       oPParentPath = oNParent->oPPath;
       ulParentDepth = Path_getDepth(oPParentPath);
       if(Path_getDepth(oPPath) == 0){
@@ -149,21 +133,24 @@ boolean fiOrDi, size_t ulLength, void *pvContents) {
          return NO_SUCH_PATH;
       }
    }
+
    psNew->oNParent = oNParent; 
    psNew->fileOrDirectory = fiOrDi;  
-   if (psNew->fileOrDirectory){
-      psNew->contents = malloc(sizeof(void *) * ulLength); 
-      psNew->contents = pvContents; 
-      psNew->length = ulLength; 
-   }
+   psNew->contents = pvContents; 
+   psNew->length = ulLength; 
 
    /* initialize the new node */
-   psNew->oDChildren = DynArray_new(0);
+   if (!psNew->fileOrDirectory){
+      psNew->oDChildren = DynArray_new(0);
    if(psNew->oDChildren == NULL) {
       Path_free(psNew->oPPath);
       free(psNew);
       *poNResult = NULL;
       return MEMORY_ERROR;
+   }
+   }
+   else{
+      psNew->oDChildren = NULL; 
    }
 
    /* Link into parent's children list */
@@ -179,17 +166,22 @@ boolean fiOrDi, size_t ulLength, void *pvContents) {
 
    *poNResult = psNew;
 
-   assert(oNParent == NULL || CheckerDT_Node_isValid(oNParent));
-   assert(CheckerDT_Node_isValid(*poNResult));
+   /*assert(oNParent == NULL);*/
    return SUCCESS;
 }
+/*--------------------------------------------------------------------*/
+int Node_compare(Node_T oNFirst, Node_T oNSecond) {
+   assert(oNFirst != NULL);
+   assert(oNSecond != NULL);
 
+   return Path_comparePath(oNFirst->oPPath, oNSecond->oPPath);
+}
+/*--------------------------------------------------------------------*/
 size_t Node_free(Node_T oNNode) {
-   size_t ulIndex;
+   size_t ulIndex = 0; 
    size_t ulCount = 0;
 
    assert(oNNode != NULL);
-   assert(CheckerDT_Node_isValid(oNNode));
 
    /* remove from parent's list */
    if(oNNode->oNParent != NULL) {
@@ -224,7 +216,7 @@ Path_T Node_getPath(Node_T oNNode) {
 
    return oNNode->oPPath;
 }
-
+/*--------------------------------------------------------------------*/
 boolean Node_hasChild(Node_T oNParent, Path_T oPPath,
                          size_t *pulChildID) {
    assert(oNParent != NULL);
@@ -239,7 +231,7 @@ boolean Node_hasChild(Node_T oNParent, Path_T oPPath,
             (char*) Path_getPathname(oPPath), pulChildID,
             (int (*)(const void*,const void*)) Node_compareString);
 }
-
+/*--------------------------------------------------------------------*/
 size_t Node_getNumChildren(Node_T oNParent) {
    assert(oNParent != NULL);
     if (oNParent->fileOrDirectory){
@@ -248,7 +240,7 @@ size_t Node_getNumChildren(Node_T oNParent) {
 
    return DynArray_getLength(oNParent->oDChildren);
 }
-
+/*--------------------------------------------------------------------*/
 int  Node_getChild(Node_T oNParent, size_t ulChildID,
                    Node_T *poNResult) {
 
@@ -268,20 +260,13 @@ int  Node_getChild(Node_T oNParent, size_t ulChildID,
       return SUCCESS;
    }
 }
-
+/*--------------------------------------------------------------------*/
 Node_T Node_getParent(Node_T oNNode) {
    assert(oNNode != NULL);
 
    return oNNode->oNParent;
 }
-
-int Node_compare(Node_T oNFirst, Node_T oNSecond) {
-   assert(oNFirst != NULL);
-   assert(oNSecond != NULL);
-
-   return Path_comparePath(oNFirst->oPPath, oNSecond->oPPath);
-}
-
+/*--------------------------------------------------------------------*/
 char *Node_toString(Node_T oNNode) {
    char *copyPath;
 
@@ -293,13 +278,13 @@ char *Node_toString(Node_T oNNode) {
    else
       return strcpy(copyPath, Path_getPathname(Node_getPath(oNNode)));
 }
-
+/*--------------------------------------------------------------------*/
 void * Node_changeFileContents(Node_T oNNode, void *pvNewContents,
                              size_t ulNewLength){
    void * temp;
    assert (oNNode != NULL);  
    temp = oNNode->contents; 
-   oNNode->contents = realloc(pvNewContents, (sizeof(void*)*(ulNewLength))); 
+   oNNode->contents = pvNewContents; 
    if ((oNNode->contents == NULL) && temp != NULL){
       return NULL; 
    }
@@ -307,17 +292,18 @@ void * Node_changeFileContents(Node_T oNNode, void *pvNewContents,
    oNNode->length = ulNewLength; 
    return temp; 
 }
-
+/*--------------------------------------------------------------------*/
 boolean Node_getType(Node_T oNNode){
    assert(oNNode != NULL); 
    return oNNode->fileOrDirectory; 
 }
-
+/*--------------------------------------------------------------------*/
 void * Node_getContents(Node_T oNNode){
       return oNNode->contents; 
 }
-
+/*--------------------------------------------------------------------*/
 size_t Node_getFileLength(Node_T oNNode){
    return oNNode->length; 
 }
+/*--------------------------------------------------------------------*/
 
